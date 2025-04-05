@@ -9,6 +9,22 @@ RATINGS_DB = 'ratings.txt'
 
 HOST, PORT = "0.0.0.0", 9999
 
+commands = {}
+
+def command(action):
+    def decorator(func):
+        command[action] = func
+        return func
+    return decorator
+
+@command("get_next")
+def cmd_next(user, request):
+    pass
+
+@command("rate")
+def cmd_rate(user, request):
+    pass
+
 def handle_client(client_socket, address):
     user_id = address[0]
     try:
@@ -19,7 +35,10 @@ def handle_client(client_socket, address):
             request = json.loads(data)
             action = request.get("action")
             #handling commands: rate, get_next
-            response = None
+            if action in commands:
+                response=commands[action](user_id, request)
+            else:
+                response = None
             client_socket.send(json.dumps(response).encode())
     except Exception as e:
         print(f"Error: {e}")
